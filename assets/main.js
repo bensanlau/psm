@@ -1,8 +1,6 @@
 const password = document.getElementById("password");
 const conditions = [...document.getElementById("conditions").children];
-const conditionSpecialChar = document.getElementById("condition-special-char");
-const conditionUppercase = document.getElementById("condition-upper-char");
-const conditionLowercase = document.getElementById("condition-lower-char");
+const submitBtn = document.getElementById("submitButton");
 
 function updateConditions() {
   conditions.forEach((condition) => {
@@ -10,6 +8,8 @@ function updateConditions() {
     condition.querySelector("span").innerHTML = status ? "✅ " : "❌ ";
     condition.classList.toggle("text-green-500", status);
   });
+
+	submitBtn.disabled = !conditions.every(condition => condition.dataset.valid === "true");
 }
 
 function checkMinLength(pw) {
@@ -47,6 +47,7 @@ function checkLowercase(pw) {
     : false;
 }
 
+// TODO: add debounce
 password.addEventListener("input", () => {
   // 1. Get value of password
   const pw = password.value;
@@ -57,6 +58,7 @@ password.addEventListener("input", () => {
   checkSpecialChar(pw);
   checkUppercase(pw);
   checkLowercase(pw);
+
   updateConditions();
 });
 
