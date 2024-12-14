@@ -1,15 +1,17 @@
 const password = document.getElementById("password");
 const conditions = [...document.getElementById("conditions").children];
-const submitBtn = document.getElementById("submitButton");
+let lastStrengthColor;
 
 function updateConditions() {
   conditions.forEach((condition) => {
     const status = condition.dataset.valid === "true";
     condition.querySelector("span").innerHTML = status ? "✅ " : "❌ ";
-    condition.classList.toggle("text-green-500", status);
+    condition.classList.toggle("text-green-600", status);
   });
 
-	submitBtn.disabled = !conditions.every(condition => condition.dataset.valid === "true");
+  document.getElementById("submitButton").disabled = !conditions.every(
+    (condition) => condition.dataset.valid === "true"
+  );
 }
 
 function checkMinLength(pw) {
@@ -47,6 +49,41 @@ function checkLowercase(pw) {
     : false;
 }
 
+function updateStrength() {
+  // 1. Collect number of passed conditions
+  const passedConditionsLength = conditions.filter(
+    (condition) => condition.dataset.valid === "true"
+  ).length;
+
+  // 2. For every passed condition, increase progress
+  document.documentElement.style.setProperty(
+    "--strength-bar-width",
+    `${passedConditionsLength * 20}%`
+  );
+
+  let strengthLevel;
+  switch (true) {
+    case passedConditionsLength >= 5:
+      strengthLevel = "Strong";
+      color = "bg-green-600";
+      break;
+    case passedConditionsLength >= 2:
+      strengthLevel = "Medium";
+      color = "bg-yellow-500";
+      break;
+    default:
+      strengthLevel = "Weak";
+      color = "bg-red-600";
+  }
+
+  document.getElementById("strength-text").innerText = strengthLevel;
+  if (lastStrengthColor !== color) {
+    document.getElementById("strength-bar").classList.remove(lastStrengthColor);
+  }
+  document.getElementById("strength-bar").classList.add(color);
+  lastStrengthColor = color;
+}
+
 // TODO: add debounce
 password.addEventListener("input", () => {
   // 1. Get value of password
@@ -60,6 +97,7 @@ password.addEventListener("input", () => {
   checkLowercase(pw);
 
   updateConditions();
+  updateStrength();
 });
 
 updateConditions();
